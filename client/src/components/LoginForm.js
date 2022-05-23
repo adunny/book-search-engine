@@ -29,6 +29,7 @@ const LoginForm = () => {
     }
 
     try {
+      // login with credentials from form, destructure data from the useMutation hook
       const { data } = await login({
         variables: { ...userFormData }
       });
@@ -40,6 +41,8 @@ const LoginForm = () => {
       }
 
       // const { token, user } = await response.json();
+
+      //sign token from the data returned from mutation
       Auth.login(data.login.token);
     } catch (err) {
       console.error(err);

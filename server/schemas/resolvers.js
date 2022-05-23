@@ -6,10 +6,8 @@ const resolvers = {
   Query: {
     me: async (parent, args, context) => {
       if (context.user) {
-        const userData = await User.findOne({})
-          .select('-__v -password')
-          .populate('savedBooks')
-
+        const userData = await User.findOne({ _id: context.user._id })
+          .select('-__v -password');
         return userData;
       }
       throw new AuthenticationError('Not logged in');
@@ -42,14 +40,29 @@ const resolvers = {
       }
 
       const token = signToken(user);
-
+      console.log(user);
       return { token, user };
     },
+
+    saveBook: async (parent, { input }, context) => {
+      if (context.user) {
+        const savedBook = await User.findByIdAndUpdate(
+          { _id: context.user._id },
+          { $addToSet: { savedBooks: input } },
+          { new: true }
+        )
+        console.log(context.user);
+        return savedBook;
+      }
+
+      throw new AuthenticationError('You need to be logged in');
+    },
+
     removeBook: async (parent, { bookId }, context) => {
       if (context.user) {
         const removedBook = await User.findByIdAndUpdate(
           { _id: context.user._id },
-          { $pull: { savedBooks: bookId } },
+          { $pull: { savedBooks:{ bookId }} },
           { new: true }
         );
 
